@@ -49,7 +49,7 @@ fn main() {
                     .expect("failed to execute process");
         let result = String::from_utf8(get_temp.stdout).unwrap();
         let filtered_result: String = result.chars().filter(|c| c.is_digit(10)).collect();  // Filter out non number char
-        println!("{}", filtered_result);
+        // println!("{}", filtered_result);
 
         // Measure throttled
         let get_throttled = Command::new("vcgencmd")
@@ -58,19 +58,21 @@ fn main() {
                     .expect("failed to execute process");
         let result_throttled = String::from_utf8(get_throttled.stdout).unwrap();
         let filtered_result_throttled: String = result_throttled.chars().filter(|c| c.is_digit(10)).collect();  // Filter out non number char
-        println!("{}", filtered_result_throttled);
+        // println!("{}", filtered_result_throttled);
 
         // publish
         let temp_msg = mqtt::Message::new("/rpi4/monitoring/temperature", filtered_result, 0);
         let temp_tok = cli.publish(temp_msg);
         if let Err(e) = temp_tok.wait() {
             println!("Error sending message: {:?}", e);
+            break;
         }
 
         let throttled_msg = mqtt::Message::new("/rpi4/monitoring/throttled", filtered_result_throttled, 0);
         let throttled_tok = cli.publish(throttled_msg);
         if let Err(e) = throttled_tok.wait() {
             println!("Error sending message: {:?}", e);
+            break;
         }
 
         // Sleep for DELAY seconds
